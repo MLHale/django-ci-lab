@@ -1,0 +1,17 @@
+name: CI
+on:
+  push:
+    branches: [ main, ci-setup ]
+  pull_request:
+    branches: [ main ]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker version
+      - run: docker compose up -d --build
+      - run: docker compose exec -T web python manage.py migrate
+      - run: docker compose exec -T web python manage.py test -v 2
+      - if: always()
+        run: docker compose down
